@@ -1,0 +1,208 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Novel Agent Workspace</title>
+  <link rel="stylesheet" href="/ui/styles.css" />
+</head>
+<body>
+  <div class="bg-orb orb-a"></div>
+  <div class="bg-orb orb-b"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <h1>Novel Agent</h1>
+      <p>项目工作台</p>
+    </div>
+    <div class="top-meta">
+      <button id="btn-back-projects" class="ghost">返回项目列表</button>
+      <div class="meta-pill">当前项目：<strong id="current-project-name">未选择</strong></div>
+      <div class="meta-pill">阶段：<strong id="current-stage">项目列表</strong></div>
+      <label class="api-input">API
+        <input id="api-prefix" value="/api/v1" />
+      </label>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <aside class="sidebar">
+      <button class="side-item active" data-route="/projects">项目列表</button>
+      <button class="side-item" data-route="/projects/:id/overview">项目概览</button>
+      <button class="side-item" data-route="/projects/:id/proposal">Proposal</button>
+      <button class="side-item" data-route="/projects/:id/world">世界观</button>
+      <button class="side-item" data-route="/projects/:id/characters">角色</button>
+      <button class="side-item" data-route="/projects/:id/outlines">大纲</button>
+      <button class="side-item" data-route="/projects/:id/chapters">章节</button>
+      <button class="side-item" data-route="/projects/:id/memory">记忆中心</button>
+      <button class="side-item" data-route="/projects/:id/review">审校中心</button>
+      <button class="side-item sample" data-route="/projects/:id/settings">设置(样例)</button>
+    </aside>
+
+    <section class="main-area">
+      <section id="page-projects" class="page active">
+        <div class="page-head">
+          <h2>我的小说项目 <span class="tag real">已接后端</span></h2>
+          <button id="btn-refresh-projects" class="ghost">刷新</button>
+        </div>
+        <div class="row">
+          <input id="project-keyword" placeholder="按项目 ID 或项目名搜索（前端过滤）" />
+          <button id="btn-open-create">新建项目</button>
+        </div>
+        <div id="project-list" class="list"></div>
+
+        <div id="create-project-box" class="panel hidden">
+          <h3>新建项目</h3>
+          <div class="form-grid">
+            <label>项目名称*<input id="cp-title" placeholder="例如：高武：我靠解析万物升级" /></label>
+            <label>题材*<select id="cp-genre">
+              <option value="">请选择题材</option>
+              <option>都市高武</option><option>玄幻升级</option><option>科幻末世</option><option>悬疑推理</option>
+              <option>仙侠修真</option><option>无限流</option><option>校园青春</option><option>自定义</option>
+            </select></label>
+            <label>平台风格*<div class="inline"><label><input type="radio" name="cp-style" value="男频" checked />男频</label><label><input type="radio" name="cp-style" value="女频" />女频</label><label><input type="radio" name="cp-style" value="泛读者" />泛读者</label></div></label>
+            <label>整体基调<input id="cp-tone" placeholder="例如：热血、升级、悬疑" /></label>
+            <label>目标读者<input id="cp-audience" placeholder="例如：男频读者" /></label>
+          </div>
+          <label>项目简介<textarea id="cp-summary" rows="3" placeholder="用于后续生成世界观、角色和大纲"></textarea></label>
+          <div class="row"><button id="btn-create-project">创建项目</button></div>
+        </div>
+      </section>
+
+      <section id="page-overview" class="page">
+        <div class="page-head"><h2>项目概览 <span class="tag real">已接后端</span></h2></div>
+        <div id="overview-info" class="cards"></div>
+        <div id="overview-progress" class="cards"></div>
+        <div id="overview-stats" class="cards"></div>
+        <div class="row quick-actions">
+          <button data-go="proposal">去 Proposal</button><button data-go="world">去世界观</button><button data-go="characters">去角色</button><button data-go="outlines">去大纲</button><button data-go="chapters">去章节</button>
+        </div>
+      </section>
+
+      <section id="page-proposal" class="page">
+        <div class="page-head"><h2>Proposal <span class="tag real">已接后端</span> <span class="tag sample">结构化保存：样例</span></h2></div>
+        <label>创意描述*<textarea id="proposal-idea" rows="5" placeholder="我想写一本都市高武男频小说..."></textarea></label>
+        <div class="row">
+          <button id="btn-generate-proposal">生成立项方案</button>
+          <button id="btn-copy-proposal" class="ghost">复制结果</button>
+          <button class="ghost" disabled>保存到项目(未接入后端)</button>
+        </div>
+        <pre id="proposal-result" class="result"></pre>
+      </section>
+
+      <section id="page-world" class="page">
+        <div class="page-head"><h2>世界观 <span class="tag real">已接后端</span> <span class="tag sample">编辑保存：样例</span></h2></div>
+        <div class="row"><button id="btn-generate-world">生成世界观</button><button id="btn-get-world" class="ghost">刷新</button><button class="ghost" disabled>编辑世界观(样例)</button></div>
+        <div id="world-panel" class="cards"></div>
+      </section>
+
+      <section id="page-characters" class="page">
+        <div class="page-head"><h2>角色 <span class="tag real">已接后端</span> <span class="tag sample">编辑/删除：样例</span></h2></div>
+        <div class="row">
+          <label>角色数量<input id="character-count" type="number" min="1" max="20" value="5" /></label>
+          <button id="btn-generate-characters">生成角色</button>
+          <button id="btn-get-characters" class="ghost">刷新</button>
+        </div>
+        <div class="split2">
+          <div id="character-list" class="list"></div>
+          <div id="character-detail" class="panel">请选择角色查看详情</div>
+        </div>
+      </section>
+
+      <section id="page-outlines" class="page">
+        <div class="page-head"><h2>大纲 <span class="tag real">已接后端</span> <span class="tag sample">拖拽调整：样例</span></h2></div>
+        <div class="row">
+          <label>卷号<input id="outline-volume" type="number" min="1" value="1" /></label>
+          <label>章节数<input id="outline-ch-count" type="number" min="1" max="30" value="10" /></label>
+          <button id="btn-generate-outlines">生成大纲</button>
+          <button id="btn-get-outlines" class="ghost">刷新</button>
+          <button class="ghost" disabled>拖拽调整(样例)</button>
+        </div>
+        <div class="split2">
+          <div id="outline-tree" class="list"></div>
+          <div id="outline-detail" class="panel">请选择大纲查看详情</div>
+        </div>
+      </section>
+
+      <section id="page-chapters" class="page">
+        <div class="page-head"><h2>章节 <span class="tag real">已接后端</span> <span class="tag sample">续写/重写/增强：样例</span></h2></div>
+        <div class="split2">
+          <div>
+            <div id="chapter-list" class="list"></div>
+            <div class="row">
+              <label>章节号<input id="chapter-no" type="number" min="1" value="1" /></label>
+              <label>目标字数<input id="chapter-word-count" type="number" min="500" max="5000" value="1800" /></label>
+            </div>
+            <label>额外要求<textarea id="chapter-extra" rows="3" placeholder="第一章要有明显钩子..."></textarea></label>
+            <div class="row">
+              <button id="btn-generate-chapter">生成正文</button>
+              <button id="btn-load-chapter" class="ghost">加载单章</button>
+              <button id="btn-review-chapter" class="ghost">审校</button>
+            </div>
+            <div class="row">
+              <button class="ghost" disabled>章节续写(样例)</button>
+              <button class="ghost" disabled>章节重写(样例)</button>
+              <button class="ghost" disabled>增强钩子(样例)</button>
+            </div>
+          </div>
+          <div>
+            <label>标题<input id="chapter-title" /></label>
+            <label>正文<textarea id="chapter-content" rows="10"></textarea></label>
+            <label>摘要<textarea id="chapter-summary" rows="4"></textarea></label>
+            <label>状态<select id="chapter-status"><option value="draft">draft</option><option value="final">final</option></select></label>
+            <div class="row"><button id="btn-save-chapter">保存</button></div>
+            <div class="tabs-mini">
+              <button class="mini active" data-ch-tab="recent">recent_memory</button>
+              <button class="mini" data-ch-tab="fores">foreshadowings</button>
+              <button class="mini" data-ch-tab="review">review_result</button>
+            </div>
+            <pre id="chapter-side" class="result"></pre>
+          </div>
+        </div>
+      </section>
+
+      <section id="page-memory" class="page">
+        <div class="page-head"><h2>记忆中心 <span class="tag real">已接后端</span> <span class="tag sample">编辑维护：样例</span></h2></div>
+        <div class="tabs-mini">
+          <button class="mini active" data-memory-tab="fores">foreshadowings</button>
+          <button class="mini" data-memory-tab="timeline">timeline</button>
+          <button class="mini" data-memory-tab="recent">recent_memory</button>
+          <button class="mini" data-memory-tab="search">semantic_search</button>
+        </div>
+        <div id="memory-content" class="panel"></div>
+        <div id="memory-search-form" class="row hidden">
+          <label>query*<input id="memory-query" placeholder="输入检索内容" /></label>
+          <label>top_k<input id="memory-topk" type="number" min="1" max="20" value="5" /></label>
+          <button id="btn-memory-search">检索</button>
+        </div>
+      </section>
+
+      <section id="page-review" class="page">
+        <div class="page-head"><h2>审校中心 <span class="tag real">已接后端(部分)</span> <span class="tag sample">批量审校：样例</span></h2></div>
+        <div class="row">
+          <label>章节号*<input id="review-chapter-no" type="number" min="1" value="1" /></label>
+          <button id="btn-run-review">开始审校</button>
+          <button class="ghost" disabled>批量审校(样例)</button>
+        </div>
+        <pre id="review-result" class="result"></pre>
+      </section>
+
+      <section id="page-settings" class="page">
+        <div class="page-head"><h2>项目设置 <span class="tag disabled">未接入后端</span></h2></div>
+        <div class="panel">当前为样例页面，尚未接入后端。</div>
+        <div class="form-grid">
+          <label>default_word_count<input type="number" value="1800" /></label>
+          <label>default_style<input placeholder="默认风格" /></label>
+          <label>enable_memory_retrieval<select><option>true</option><option>false</option></select></label>
+          <label>enable_auto_review<select><option>true</option><option>false</option></select></label>
+        </div>
+        <div class="row"><button disabled>保存(未接入后端)</button></div>
+      </section>
+
+      <div id="toast" class="toast"></div>
+    </section>
+  </main>
+
+  <script src="/ui/app.js"></script>
+</body>
+</html>

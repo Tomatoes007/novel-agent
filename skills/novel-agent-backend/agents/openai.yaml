@@ -1,0 +1,4 @@
+interface:
+  display_name: "Novel Agent Backend"
+  short_description: "Develop and maintain the Novel Agent FastAPI backend workflow."
+  default_prompt: "Use $novel-agent-backend to implement and validate a backend feature for this repository."
